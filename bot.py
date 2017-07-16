@@ -184,7 +184,7 @@ def mem(msg):
 def callback_message(call):
     logging(call)
     with open(call.data, "rb") as file:
-        if call.data[11] == 'E':
+        if call.data[17] == 'E':
             bot.send_photo(call.message.chat.id, photo=file)
         else:
             bot.send_document(call.message.chat.id, data=file)
