@@ -14,7 +14,7 @@ main = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 main.row("🎲Случайная задача🎲", "🎓Буду ботать🎓")
 main.row("🎭Буду читать мемесы🎭")
 
-# ЕГЭ-Меню клавиатура
+# ЕГЭ Меню клавиатура
 menuEge = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 menuEge.row('Вариант', 'II часть', 'Ларин')
 menuEge.row(config.toBegin)
