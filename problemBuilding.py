@@ -5,7 +5,6 @@ from telebot import types
 
 import bot
 import config
-import dbUtils
 
 toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 

@@ -55,13 +55,15 @@ def whatTheFuckMan(msg):
                      text=config.whatTheFuckMessage)
 
 
-def sendEGEProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
+def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
     try:
         if egeNumber:
-            problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
+            problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
             dbUtils.addUserProblemHistory(msg.chat.id, problemID)
         elif problemID:
-            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, problemID=problemID))
+            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, problemID=problemID))
         else:
             path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
@@ -71,7 +73,7 @@ def sendEGEProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID
         finally:
             photo.close()
     except Exception:
-        pass
+        whatTheFuckMan(msg)
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -146,7 +148,7 @@ def wantEgeProblem(msg):
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
-    sendEGEProblemToUser(msg, egeNumber=egeNumber)
+    sendProblemToUser(msg, egeNumber=egeNumber)
 
 
 @bot.message_handler(regexp='II часть')
@@ -175,7 +177,7 @@ def mem(msg):
 def randomVariant(msg):
     logging(msg=msg)
     for i in range(13, 20):
-        sendEGEProblemToUser(msg, egeNumber=i)
+        sendProblemToUser(msg, egeNumber=i)
 
 
 @bot.message_handler(regexp='Вар.')
@@ -189,9 +191,16 @@ def larin(msg):
     keyboard = problemBuilding.getLarinVariantsKeyboard()
     bot.send_message(msg.chat.id, text='Выберите вариант.', reply_markup=keyboard)
 
-@bot.message_handler(regexp='get ')
+
+@bot.message_handler(regexp='get')
 def getParse(msg):
-    sendEGEProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+    logging(msg)
+    sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+
+
+@bot.message_handler(regexp='дай')
+def getAlias(msg):
+    getParse(msg)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -211,14 +220,14 @@ def parseText(msg):
 
         intValue = int(msg.text)
         if config.minEgeProblemNumber <= intValue <= config.maxEgeProblemNumber:  # ЕГЭ
-            sendEGEProblemToUser(msg=msg, egeNumber=intValue)
+            sendProblemToUser(msg=msg, egeNumber=intValue)
         elif config.minDVIYear <= intValue <= config.maxDVIYear:  # ДВИ
             showDVIVariants(msg, intValue)
         else:
             whatTheFuckMan(msg)
     except(Exception):
         try:
-            sendEGEProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+            sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
         except Exception as ex:
             whatTheFuckMan(msg)
             logging(text=ex)
@@ -227,4 +236,4 @@ def parseText(msg):
 if __name__ == '__main__':
     logging(text="Enabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
     bot.polling(none_stop=True)
-    logging(text="\n Disabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
+    logging(text="\nDisabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
