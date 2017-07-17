@@ -16,14 +16,14 @@ def latex2image(recordOfProblem):
     try:
         for i in toCreate:
             if recordOfProblem[toCreate[i]]:
-                pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], i, recordOfProblem[7],i]
+                pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], i, recordOfProblem[1],i]
                 preview(r'{}'.format(recordOfProblem[toCreate[i]]),
-                    viewer='file',
-                    output='png',
-                    preamble=config.myPreamble,
-                    filename=config.bankPath + config.egeTaskPathPattern.format(*pathFormat),
-                    dvioptions=config.dviOptions
-                    )
+                        viewer='file',
+                        output='png',
+                        preamble=config.myPreamble,
+                        filename=config.bankPath + config.egeTaskPathPattern.format(*pathFormat),
+                        dvioptions=config.dviOptions
+                        )
     except Exception:
         bot.logging(text=config.latex2pngError)
 

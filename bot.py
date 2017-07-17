@@ -55,24 +55,20 @@ def whatTheFuckMan(msg):
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
-    try:
-        if egeNumber:
-            problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
-                dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
-            dbUtils.addUserProblemHistory(msg.chat.id, problemID)
-        elif problemID:
-            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
-                dbUtils.getEgeProblem(msg, problemID=problemID))
-        else:
-            path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
+    if egeNumber:
+        problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+            dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
+        dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+    elif problemID:
+        _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, problemID=problemID))
+    else:
+        path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
-        photo = open(path, 'rb')
-        try:
-            bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
-        finally:
-            photo.close()
-    except Exception:
-        whatTheFuckMan(msg)
+    photo = open(path, 'rb')
+    try:
+        bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
+    finally:
+        photo.close()
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -120,24 +116,6 @@ def handle_start_help(message):
     vkGroupsLinks.add(egeBtn, olympBtn, csBtn)
     bot.send_message(message.chat.id,
                      text=config.aboutVkMessage, reply_markup=vkGroupsLinks)
-
-
-@bot.message_handler(regexp='get')
-def parseGetCommand(msg):
-    bot.send_message(msg.chat.id, text='works')
-
-
-@bot.message_handler(regexp='Вариант')
-def randomVariant(msg):
-    logging(msg=msg)
-    for i in range(13, 20):
-        sendProblemToUser(msg, i)
-        # time.sleep(1)
-
-
-@bot.message_handler(regexp='Вар')
-def parseLarinVariant(msg):
-    sendLarinVariant(msg, msg.text[5::])
 
 
 @bot.message_handler(regexp='ДВИ')
@@ -208,7 +186,10 @@ def larin(msg):
 @bot.message_handler(regexp='get')
 def getParse(msg):
     logging(msg)
-    sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+    try:
+        sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+    except:
+        whatTheFuckMan(msg)
 
 
 @bot.message_handler(regexp='дай')

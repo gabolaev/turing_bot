@@ -13,4 +13,4 @@ def sendToAll(text):
             bot.logging(text=ex)
 
 
-sendToAll(input())
+sendToAll("""""")

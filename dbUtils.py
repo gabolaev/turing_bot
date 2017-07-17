@@ -46,13 +46,10 @@ def getProblemInfoAndHashtags(problemID):
 
 
 def getEgeProblem(msg, egeNumber=None, problemID=None):
-    try:
-        if egeNumber:
-            record = execStoreProcedure('GET_RAND_PROBLEM_BY_EGE_NUMBER', [egeNumber])[0]
-        else:
-            record = execStoreProcedure('GET_PROBLEM_BY_PROBLEM_ID',[problemID])[0]
-        tags = getProblemInfoAndHashtags(record[0])
+    if egeNumber:
+        record = execStoreProcedure('GET_RAND_PROBLEM_BY_EGE_NUMBER', [egeNumber])[0]
+    else:
+        record = execStoreProcedure('GET_PROBLEM_BY_PROBLEM_ID',[problemID])[0]
+    tags = getProblemInfoAndHashtags(record[0])
 
-        return record, tags
-    except Exception:
-        bot.bot.send_message(msg.chat.id, text='Задачи не существует.')
+    return record, tags
