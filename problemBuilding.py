@@ -16,9 +16,8 @@ def latex2image(recordOfProblem):
     try:
         for i in toCreate:
             if recordOfProblem[toCreate[i]]:
-                pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], i, recordOfProblem[10][1],
-                              i]
-                preview(r'{}'.format(recordOfProblem[10][toCreate[i]]),
+                pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], i, recordOfProblem[7],i]
+                preview(r'{}'.format(recordOfProblem[toCreate[i]]),
                         viewer='file',
                         output='png',
                         preamble=config.myPreamble,
@@ -31,7 +30,7 @@ def latex2image(recordOfProblem):
 
 def checkImageExist(recordOfProblem):
     try:
-        pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], 'problem', recordOfProblem[1], 'problem']
+        pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], 'problem', recordOfProblem[1], 'problem']
         open(config.bankPath + config.egeTaskPathPattern.format(*pathFormat, 'r')).close()
     except IOError:
         latex2image(recordOfProblem)
@@ -41,8 +40,8 @@ def getEgeProblem(recordOfProblem):
 
     checkImageExist(recordOfProblem[0])
 
-    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[0][10] >= 13 else 1),
-                                                              recordOfProblem[0][10], 'problem',
+    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[0][7] >= 13 else 1),
+                                                              recordOfProblem[0][7], 'problem',
                                                               recordOfProblem[0][1], 'problem')
 
     problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
@@ -56,7 +55,7 @@ def getEgeProblem(recordOfProblem):
             pass
     problemKeyboard.keyboard = [constrProblemKeyboard]
 
-    tags = 'Задача №{} ({})\n{}'.format(recordOfProblem[0][10], recordOfProblem[0][1], recordOfProblem[1])
+    tags = 'Задача №{} ({})\n{}'.format(recordOfProblem[0][7], recordOfProblem[0][1], recordOfProblem[1])
     return recordOfProblem[0][0], path, problemKeyboard, tags
 
 
