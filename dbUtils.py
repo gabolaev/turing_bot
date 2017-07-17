@@ -1,5 +1,7 @@
 import MySQLdb
+
 import config
+
 
 def execStoreProcedure(procedureName, *args):
     db = MySQLdb.connect(**config.dbConnection)
@@ -13,27 +15,33 @@ def execStoreProcedure(procedureName, *args):
     db.close()
     return result
 
+
 def deleteUser(telegramID):
     execStoreProcedure('DELETE_USER', telegramID)
 
+
 def getListOfUsers():
-    return(execStoreProcedure('LIST_OF_USERS'))
+    return (execStoreProcedure('LIST_OF_USERS'))
+
 
 def addUserProblemHistory(telegramID, problemID):
-    execStoreProcedure('ADD_USER_PROBLEM_HISTORY',telegramID,problemID)
+    execStoreProcedure('ADD_USER_PROBLEM_HISTORY', telegramID, problemID)
+
 
 def getMem():
     return execStoreProcedure('GET_MEM')
 
+
 def addUser(message):
     execStoreProcedure('ADD_NEW_USER', message.chat.id, message.chat.username)
 
+
 def getRandomEgeNumber():
-    return(execStoreProcedure('GET_RANDOM_TASK_NUMBER')[0][0])
+    return (execStoreProcedure('GET_RANDOM_TASK_NUMBER')[0][0])
+
 
 def getRandomProblemByEgeNumber(egeNumber):
-
     record = execStoreProcedure('GET_PROBLEM', [egeNumber])
-    tags = ' '.join("{}".format(i[0]) for i in execStoreProcedure('GET_PROBLEM_INFO_AND_HASHTAGS',[record[0][0]]))
+    tags = ' '.join("{}".format(i[0]) for i in execStoreProcedure('GET_PROBLEM_INFO_AND_HASHTAGS', [record[0][0]]))
 
     return record[0], tags

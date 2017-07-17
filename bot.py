@@ -54,7 +54,7 @@ def whatTheFuckMan(msg):
                      text=config.whatTheFuckMessage)
 
 
-def sendProblemToUser(msg, egeNumber=None, year=None, variant=None):
+def sendEGEProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
     if (egeNumber):
         problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(egeNumber)
         dbUtils.addUserProblemHistory(msg.chat.id, problemID)
@@ -197,7 +197,7 @@ def parseText(msg):
 
         intValue = int(msg.text)
         if config.minEgeProblemNumber <= intValue <= config.maxEgeProblemNumber:  # ЕГЭ
-            sendProblemToUser(msg=msg, egeNumber=intValue)
+            sendEGEProblemToUser(msg=msg, egeNumber=intValue)
         elif config.minDVIYear <= intValue <= config.maxDVIYear:  # ДВИ
             showDVIVariants(msg, intValue)
         else:

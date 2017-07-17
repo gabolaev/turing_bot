@@ -10,36 +10,58 @@ import dbUtils
 toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 
 
-def latex2image(record):
+### ЕГЭ
+
+def latex2image(recordOfProblem):
     try:
         for i in toCreate:
-            if record[toCreate[i]]:
-                path = [(2 if record[10] >= 13 else 1), record[10], i, record[1], i]
-                preview(r'{}'.format(record[toCreate[i]]),
+            if recordOfProblem[toCreate[i]]:
+                pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], i, recordOfProblem[10][1], i]
+                preview(r'{}'.format(recordOfProblem[10][toCreate[i]]),
                         viewer='file',
                         output='png',
                         preamble=config.myPreamble,
-                        filename=config.bankPath + config.egeTaskPathPattern.format(*path),
+                        filename=config.bankPath + config.egeTaskPathPattern.format(*pathFormat),
                         dvioptions=config.dviOptions
                         )
     except Exception:
         bot.logging(text=config.latex2pngError)
 
 
-def checkImageExistAndGet(egeNumber):
-    record, tagsWithoutNumber = dbUtils.getRandomProblemByEgeNumber(egeNumber)
-
-    tags = 'Задача №{} ({})\n{}'.format(egeNumber, record[1], tagsWithoutNumber)
+def checkImageExist(recordOfProblem):
     try:
-        open(config.bankPath + config.egeTaskPathPattern.format((2 if egeNumber >= 13 else 1),
-                                                                egeNumber,
-                                                                'problem',
-                                                                record[1],
-                                                                'problem'), 'r').close()
+        pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], 'problem', recordOfProblem[1], 'problem']
+        open(config.bankPath + config.egeTaskPathPattern.format(*pathFormat, 'r')).close()
     except IOError:
-        latex2image(record, egeNumber)
-    return record, tags
+        latex2image(recordOfProblem)
 
+
+def getEgeProblem(recordOfProblem):
+
+    checkImageExist(recordOfProblem)
+
+    problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
+    constrProblemKeyboard = []
+
+    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], 'problem',
+                                                              recordOfProblem[1], 'problem')
+
+    solutndsolv = ['answer', 'solution']
+    for i in solutndsolv:
+        try:
+            tryPath = path.replace('problem', i).replace('problem', i)
+            open(tryPath, 'r').close()
+            constrProblemKeyboard.append(dict(text='Решение' if i == 'solution' else 'Ответ', callback_data=tryPath))
+        except IOError:
+            pass
+
+    problemKeyboard.keyboard = [constrProblemKeyboard]
+    return recordOfProblem[0], path, problemKeyboard, tags
+
+
+### ЕГЭ
+
+### ДВИ
 
 def getDviProblem(year, variant):
     path = config.bankPath + config.dviProblemPathPattern.format(year, year, variant, 'problem')
@@ -55,9 +77,13 @@ def getDviProblem(year, variant):
     return path, problemKeyboard, tags
 
 
+### ДВИ
+
+### Ларин
+
 def getFileWithoutExtension(path):
     from os.path import basename, splitext
-    return (splitext(basename(path))[0])
+    return splitext(basename(path))[0]
 
 
 def chunks(listOfVariants, sizes):
@@ -66,7 +92,7 @@ def chunks(listOfVariants, sizes):
 
 
 def getLarinVariantsKeyboard():
-    variantsKeyboard = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True).row("🔙В начало")
+    variantsKeyboard = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True).row('🔙В начало')
 
     variantsNumbers = sorted(
         [int(getFileWithoutExtension(a)) for a in glob.glob(config.bankPath + config.larinPathPattern)], reverse=True)
@@ -74,32 +100,8 @@ def getLarinVariantsKeyboard():
     partedVariants = list(chunks(variantsNumbers, 4))
 
     for foury in partedVariants:
-        fourLine = []
-        for i in foury:
-            fourLine.append(dict(text='Вар. {}'.format(i)))
-        variantsKeyboard.keyboard.append(fourLine)
+        variantsKeyboard.keyboard.append([dict(text='Вар. {}'.format(i)) for i in foury])
 
     return variantsKeyboard
 
-
-def getEgeProblem(egeNumber):
-    randomProblem, tags = checkImageExistAndGet(egeNumber)
-
-    problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
-    constrProblemKeyboard = []
-
-    path = config.bankPath + config.egeTaskPathPattern.format((2 if egeNumber >= 13 else 1), egeNumber, 'problem',
-                                                              randomProblem[1], 'problem')
-
-    solutndsolv = ['answer', 'solution']
-    for i in solutndsolv:
-        try:
-            tryPath = path.replace('problem', i).replace('problem', i)
-            open(tryPath, 'r').close()
-            constrProblemKeyboard.append(dict(text='Решение' if i == 'solution' else "Ответ",
-                                              callback_data=tryPath))
-        except IOError:
-            pass
-
-    problemKeyboard.keyboard = [constrProblemKeyboard]
-    return randomProblem[0], path, problemKeyboard, tags
+    ###Ларин
