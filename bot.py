@@ -55,18 +55,6 @@ def whatTheFuckMan(msg):
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
-<<<<<<< HEAD
-    if (egeNumber):
-        problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(egeNumber)
-        dbUtils.addUserProblemHistory(msg.chat.id, problemID)
-    elif problemID:
-        pass
-    else:
-        path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
-
-    photo = open(path, 'rb')
-=======
->>>>>>> newArcEGE
     try:
         if egeNumber:
             problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
@@ -173,11 +161,7 @@ def wantEgeProblem(msg):
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
-<<<<<<< HEAD
-    sendProblemToUser(msg, egeNumber)
-=======
     sendProblemToUser(msg, egeNumber=egeNumber)
->>>>>>> newArcEGE
 
 
 @bot.message_handler(regexp='II часть')
@@ -256,11 +240,7 @@ def parseText(msg):
             whatTheFuckMan(msg)
     except Exception:
         try:
-<<<<<<< HEAD
-            sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # Пришел вариант ДВИ
-=======
             sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
->>>>>>> newArcEGE
         except Exception as ex:
             whatTheFuckMan(msg)
             logging(text=ex)
