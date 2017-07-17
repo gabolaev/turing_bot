@@ -10,19 +10,16 @@ import dbUtils
 toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 
 
-def latex2image(record, egeNumber):
+def latex2image(record):
     try:
         for i in toCreate:
             if record[toCreate[i]]:
+                path = [(2 if record[10] >= 13 else 1), record[10], i, record[1], i]
                 preview(r'{}'.format(record[toCreate[i]]),
                         viewer='file',
                         output='png',
                         preamble=config.myPreamble,
-                        filename=config.bankPath + config.egeTaskPathPattern.format((2 if egeNumber >= 13 else 1),
-                                                                                    egeNumber,
-                                                                                    i,
-                                                                                    record[1],
-                                                                                    i),
+                        filename=config.bankPath + config.egeTaskPathPattern.format(*path),
                         dvioptions=config.dviOptions
                         )
     except Exception:
