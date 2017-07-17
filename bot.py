@@ -39,7 +39,8 @@ dviYears.row(config.toBegin)
 
 def logging(msg=None, text=None):
     if (msg):
-        logFormat = [msg.chat.id, msg.chat.username, msg.text] if (type(msg) is telebot.types.Message) else [msg.message.chat.id, msg.message.chat.username, msg.data]
+        logFormat = [msg.chat.id, msg.chat.username, msg.text] if (type(msg) is telebot.types.Message) else [
+            msg.message.chat.id, msg.message.chat.username, msg.data]
         logLine = datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ") + "{} ({}): {}".format(*logFormat)
     else:
         logLine = text
@@ -50,14 +51,15 @@ def logging(msg=None, text=None):
 
 
 def whatTheFuckMan(msg):
-    bot.send_message(msg.chat.id,
-                     text=config.whatTheFuckMessage)
+    bot.send_message(msg.chat.id, text=config.whatTheFuckMessage)
 
 
-def sendProblemToUser(msg, egeNumber=None, year=None, variant=None):
+def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
     if (egeNumber):
         problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(egeNumber)
         dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+    elif problemID:
+        pass
     else:
         path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
@@ -75,11 +77,7 @@ def sendLarinVariant(msg, variantNumber):
 
 def showDVIVariants(msg, year):
     variants = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True)
-    llt = []
-
-    for i in range(1, 5):
-        llt.append(dict(text=str(i) + ' ({})'.format(year)))
-    variants.keyboard = [llt]
+    variants.keyboard = [[dict(text=str(i) + ' ({})'.format(year)) for i in range(1, 5)]]
     variants.row(config.toBegin)
 
     bot.send_message(msg.chat.id, text="Выберите вариант.", reply_markup=variants)
@@ -119,13 +117,31 @@ def handle_start_help(message):
                      text=config.aboutVkMessage, reply_markup=vkGroupsLinks)
 
 
+@bot.message_handler(regexp='get')
+def parseGetCommand(msg):
+    bot.send_message(msg.chat.id, text='works')
+
+
+@bot.message_handler(regexp='Вариант')
+def randomVariant(msg):
+    logging(msg=msg)
+    for i in range(13, 20):
+        sendProblemToUser(msg, i)
+        # time.sleep(1)
+
+
+@bot.message_handler(regexp='Вар')
+def parseLarinVariant(msg):
+    sendLarinVariant(msg, msg.text[5::])
+
+
 @bot.message_handler(regexp='ДВИ')
 def wantDVIProblem(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
 
 
-@bot.message_handler(regexp='Буду ботать')
+@bot.message_handler(regexp='ботать')
 def showTypesOfBotka(msg):
     bot.send_message(msg.chat.id, text='Выберите тип экзамена.', reply_markup=typeOfBotka)
 
@@ -141,14 +157,6 @@ def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
     sendProblemToUser(msg, egeNumber)
-
-
-@bot.message_handler(regexp='Вариант')
-def randomVariant(msg):
-    logging(msg=msg)
-    for i in range(13, 20):
-        sendProblemToUser(msg, i)
-        # time.sleep(1)
 
 
 @bot.message_handler(regexp='II часть')
@@ -196,18 +204,15 @@ def parseText(msg):
     try:
 
         intValue = int(msg.text)
-        if config.minEgeProblemNumber <= intValue <= config.maxEgeProblemNumber:  # ЕГЭ
+        if config.minEgeProblemNumber <= intValue <= config.maxEgeProblemNumber:  # Пришел номер ЕГЭ
             sendProblemToUser(msg=msg, egeNumber=intValue)
-        elif config.minDVIYear <= intValue <= config.maxDVIYear:  # ДВИ
+        elif config.minDVIYear <= intValue <= config.maxDVIYear:  # Пришел год ДВИ
             showDVIVariants(msg, intValue)
         else:
             whatTheFuckMan(msg)
-    except(Exception):
+    except Exception:
         try:
-            if (msg.text[0:3] == 'Вар'):  # ЛАРИН
-                sendLarinVariant(msg, msg.text[5::])
-            else:
-                sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+            sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # Пришел вариант ДВИ
         except Exception as ex:
             whatTheFuckMan(msg)
             logging(text=ex)
