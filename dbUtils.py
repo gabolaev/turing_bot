@@ -21,7 +21,7 @@ def deleteUser(telegramID):
 
 
 def getListOfUsers():
-    return (execStoreProcedure('LIST_OF_USERS'))
+    return execStoreProcedure('LIST_OF_USERS')
 
 
 def addUserProblemHistory(telegramID, problemID):
@@ -40,8 +40,15 @@ def getRandomEgeNumber():
     return (execStoreProcedure('GET_RANDOM_TASK_NUMBER')[0][0])
 
 
-def getRandomProblemByEgeNumber(egeNumber):
-    record = execStoreProcedure('GET_PROBLEM', [egeNumber])
-    tags = ' '.join("{}".format(i[0]) for i in execStoreProcedure('GET_PROBLEM_INFO_AND_HASHTAGS', [record[0][0]]))
+def getProblemInfoAndHashtags(problemID):
+    return ' '.join("{}".format(i[0]) for i in execStoreProcedure('GET_PROBLEM_INFO_AND_HASHTAGS', [problemID]))
 
-    return record[0], tags
+
+def getEgeProblem(egeNumber=None, problemID=None):
+    if egeNumber:
+        record = execStoreProcedure('GET_RAND_PROBLEM_BY_EGE_NUMBER', [egeNumber])[0]
+    else:
+        record = execStoreProcedure('GET_PROBLEM_BY_PROBLEM_ID',[problemID])[0]
+    tags = getProblemInfoAndHashtags(record[0])
+
+    return record, tags

@@ -55,9 +55,11 @@ def whatTheFuckMan(msg):
 
 
 def sendEGEProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
-    if (egeNumber):
-        problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(egeNumber)
+    if egeNumber:
+        problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(egeNumber=egeNumber))
         dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+    elif problemID:
+        _, path, problemKeyboard,tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(problemID=problemID))
     else:
         path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
@@ -140,15 +142,14 @@ def wantEgeProblem(msg):
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
-    sendProblemToUser(msg, egeNumber)
+    sendEGEProblemToUser(msg, egeNumber=egeNumber)
 
 
 @bot.message_handler(regexp='Вариант')
 def randomVariant(msg):
     logging(msg=msg)
     for i in range(13, 20):
-        sendProblemToUser(msg, i)
-        # time.sleep(1)
+        sendEGEProblemToUser(msg, egeNumber=i)
 
 
 @bot.message_handler(regexp='II часть')
@@ -207,7 +208,7 @@ def parseText(msg):
             if (msg.text[0:3] == 'Вар'):  # ЛАРИН
                 sendLarinVariant(msg, msg.text[5::])
             else:
-                sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+                sendEGEProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
         except Exception as ex:
             whatTheFuckMan(msg)
             logging(text=ex)

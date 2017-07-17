@@ -16,7 +16,8 @@ def latex2image(recordOfProblem):
     try:
         for i in toCreate:
             if recordOfProblem[toCreate[i]]:
-                pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], i, recordOfProblem[10][1], i]
+                pathFormat = [(2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], i, recordOfProblem[10][1],
+                              i]
                 preview(r'{}'.format(recordOfProblem[10][toCreate[i]]),
                         viewer='file',
                         output='png',
@@ -38,25 +39,25 @@ def checkImageExist(recordOfProblem):
 
 def getEgeProblem(recordOfProblem):
 
-    checkImageExist(recordOfProblem)
+    checkImageExist(recordOfProblem[0])
+
+    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[0][10] >= 13 else 1),
+                                                              recordOfProblem[0][10], 'problem',
+                                                              recordOfProblem[0][1], 'problem')
 
     problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
     constrProblemKeyboard = []
-
-    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[10] >= 13 else 1), recordOfProblem[10], 'problem',
-                                                              recordOfProblem[1], 'problem')
-
-    solutndsolv = ['answer', 'solution']
-    for i in solutndsolv:
+    for i in ['answer', 'solution']:
         try:
             tryPath = path.replace('problem', i).replace('problem', i)
             open(tryPath, 'r').close()
             constrProblemKeyboard.append(dict(text='Решение' if i == 'solution' else 'Ответ', callback_data=tryPath))
         except IOError:
             pass
-
     problemKeyboard.keyboard = [constrProblemKeyboard]
-    return recordOfProblem[0], path, problemKeyboard, tags
+
+    tags = 'Задача №{} ({})\n{}'.format(recordOfProblem[0][10], recordOfProblem[0][1], recordOfProblem[1])
+    return recordOfProblem[0][0], path, problemKeyboard, tags
 
 
 ### ЕГЭ
