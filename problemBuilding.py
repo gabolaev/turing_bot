@@ -5,19 +5,27 @@ from telebot import types
 
 import bot
 import config
-import dbUtils
 
 toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 
 
 ### ЕГЭ
 
+<<<<<<< HEAD
 def latex2image(record, egeNumber):
     try:
         for i in toCreate:
             if record[toCreate[i]]:
                 pathFormat = [(2 if egeNumber >= 13 else 1), egeNumber, i, record[1], i]
                 preview(r'{}'.format(record[toCreate[i]]),
+=======
+def latex2image(recordOfProblem):
+    try:
+        for i in toCreate:
+            if recordOfProblem[toCreate[i]]:
+                pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], i, recordOfProblem[7],i]
+                preview(r'{}'.format(recordOfProblem[toCreate[i]]),
+>>>>>>> newArcEGE
                         viewer='file',
                         output='png',
                         preamble=config.myPreamble,
@@ -28,17 +36,44 @@ def latex2image(record, egeNumber):
         bot.logging(text=config.latex2pngError)
 
 
-def checkImageExistAndGet(egeNumber):
-    record, tagsWithoutNumber = dbUtils.getRandomProblemByEgeNumber(egeNumber)
-
-    tags = 'Задача №{} ({})\n{}'.format(egeNumber, record[1], tagsWithoutNumber)
+def checkImageExist(recordOfProblem):
     try:
+<<<<<<< HEAD
         pathFormat = [(2 if egeNumber >= 13 else 1), egeNumber, 'problem', record[1], 'problem']
+=======
+        pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], 'problem', recordOfProblem[1], 'problem']
+>>>>>>> newArcEGE
         open(config.bankPath + config.egeTaskPathPattern.format(*pathFormat, 'r')).close()
     except IOError:
-        latex2image(record, egeNumber)
-    return record, tags
+        latex2image(recordOfProblem)
 
+
+def getEgeProblem(recordOfProblem):
+
+    checkImageExist(recordOfProblem[0])
+
+    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[0][7] >= 13 else 1),
+                                                              recordOfProblem[0][7], 'problem',
+                                                              recordOfProblem[0][1], 'problem')
+
+    problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
+    constrProblemKeyboard = []
+    for i in ['answer', 'solution']:
+        try:
+            tryPath = path.replace('problem', i).replace('problem', i)
+            open(tryPath, 'r').close()
+            constrProblemKeyboard.append(dict(text='Решение' if i == 'solution' else 'Ответ', callback_data=tryPath))
+        except IOError:
+            pass
+    problemKeyboard.keyboard = [constrProblemKeyboard]
+
+    tags = 'Задача №{} ({})\n{}'.format(recordOfProblem[0][7], recordOfProblem[0][1], recordOfProblem[1])
+    return recordOfProblem[0][0], path, problemKeyboard, tags
+
+
+### ЕГЭ
+
+### ДВИ
 
 def getEgeProblem(egeNumber):
     randomProblem, tags = checkImageExistAndGet(egeNumber)

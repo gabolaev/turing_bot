@@ -55,6 +55,7 @@ def whatTheFuckMan(msg):
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
+<<<<<<< HEAD
     if (egeNumber):
         problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(egeNumber)
         dbUtils.addUserProblemHistory(msg.chat.id, problemID)
@@ -64,10 +65,26 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
         path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
     photo = open(path, 'rb')
+=======
+>>>>>>> newArcEGE
     try:
-        bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
-    finally:
-        photo.close()
+        if egeNumber:
+            problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
+            dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+        elif problemID:
+            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, problemID=problemID))
+        else:
+            path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
+
+        photo = open(path, 'rb')
+        try:
+            bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
+        finally:
+            photo.close()
+    except Exception:
+        whatTheFuckMan(msg)
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -156,20 +173,17 @@ def wantEgeProblem(msg):
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
+<<<<<<< HEAD
     sendProblemToUser(msg, egeNumber)
+=======
+    sendProblemToUser(msg, egeNumber=egeNumber)
+>>>>>>> newArcEGE
 
 
 @bot.message_handler(regexp='II часть')
 def partC(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text='Выберите номер задания.', reply_markup=secondPart)
-
-
-@bot.message_handler(regexp='Ларин')
-def larin(msg):
-    logging(msg=msg)
-    keyboard = problemBuilding.getLarinVariantsKeyboard()
-    bot.send_message(msg.chat.id, text='Выберите вариант.', reply_markup=keyboard)
 
 
 @bot.message_handler(regexp='В начало')
@@ -186,6 +200,36 @@ def mem(msg):
         logging(msg=msg)
     except(telebot.apihelper.ApiException):
         bot.send_message(msg.chat.id, text='Помедленнее, пожалуйста, {}. Я не выдерживаю.'.format(msg.chat.username))
+
+
+@bot.message_handler(regexp='Вариант')
+def randomVariant(msg):
+    logging(msg=msg)
+    for i in range(13, 20):
+        sendProblemToUser(msg, egeNumber=i)
+
+
+@bot.message_handler(regexp='Вар.')
+def parseLarinVariant(msg):
+    sendLarinVariant(msg, msg.text[5::])
+
+
+@bot.message_handler(regexp='Ларин')
+def larin(msg):
+    logging(msg=msg)
+    keyboard = problemBuilding.getLarinVariantsKeyboard()
+    bot.send_message(msg.chat.id, text='Выберите вариант.', reply_markup=keyboard)
+
+
+@bot.message_handler(regexp='get')
+def getParse(msg):
+    logging(msg)
+    sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+
+
+@bot.message_handler(regexp='дай')
+def getAlias(msg):
+    getParse(msg)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -212,7 +256,11 @@ def parseText(msg):
             whatTheFuckMan(msg)
     except Exception:
         try:
+<<<<<<< HEAD
             sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # Пришел вариант ДВИ
+=======
+            sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+>>>>>>> newArcEGE
         except Exception as ex:
             whatTheFuckMan(msg)
             logging(text=ex)
@@ -221,4 +269,4 @@ def parseText(msg):
 if __name__ == '__main__':
     logging(text="Enabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
     bot.polling(none_stop=True)
-    logging(text="\n Disabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
+    logging(text="\nDisabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
