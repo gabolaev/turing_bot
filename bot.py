@@ -92,7 +92,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.2 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.1 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=config.helloMessage)
 
     mainlinks = types.InlineKeyboardMarkup(row_width=3)
