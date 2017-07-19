@@ -13,6 +13,7 @@ bot = telebot.TeleBot(config.token)
 main = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 main.row("🎲Случайная задача🎲", "🎓Буду ботать🎓")
 main.row("🎭Буду читать мемесы🎭")
+main.row("📕Как оно работает?📕")
 
 # ЕГЭ Меню клавиатура
 menuEge = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -127,6 +128,12 @@ def wantDVIProblem(msg):
 @bot.message_handler(regexp='ботать')
 def showTypesOfBotka(msg):
     bot.send_message(msg.chat.id, text='Выберите тип экзамена.', reply_markup=typeOfBotka)
+
+@bot.message_handler(regexp='📕')
+def documentation(msg):
+    logging(msg=msg)
+    with open(config.docPath, 'rb') as doc:
+        bot.send_document(msg.chat.id, data=doc, caption='Красивая инструкция.')
 
 
 @bot.message_handler(regexp='ЕГЭ')
