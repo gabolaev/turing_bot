@@ -1,4 +1,6 @@
 # <a></a> <img src="https://github.com/gabolaev/Turing_bot/blob/master/resources/botLogo.png" width="26"> Turing Bot
+<a href=https://t.me/nlognbot> START BOT</a>
+
 Telegram Bot, aimed at helping students prepare for the "ЕГЭ" exam.
 
 <a href=https://github.com/gabolaev/Turing_bot/raw/master/resources/documentation.pdf> Download instruction </a>
