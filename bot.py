@@ -42,7 +42,7 @@ def logging(msg=None, text=None):
     if (msg):
         logFormat = [msg.chat.id, msg.chat.username, msg.text] if (type(msg) is telebot.types.Message) else [
             msg.message.chat.id, msg.message.chat.username, msg.data]
-        logLine = datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ") + "{} ({}): {}".format(*logFormat)
+        logLine = datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ") + "{} ({}): {}".format(*logFormat)
     else:
         logLine = text
     with open(config.logFilePath, 'a+') as log:
@@ -235,6 +235,6 @@ def parseText(msg):
 
 
 if __name__ == '__main__':
-    logging(text="Enabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
+    logging(text="Enabling the bot in {}".format(datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ")))
     bot.polling(none_stop=True)
-    logging(text="\nDisabling the bot in {}".format(datetime.datetime.now().strftime("%H:%M:%S // %d.%m.%Y // ")))
+    logging(text="\nDisabling the bot in {}".format(datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ")))
