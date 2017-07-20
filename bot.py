@@ -125,9 +125,20 @@ def wantDVIProblem(msg):
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
 
 
+@bot.message_handler(regexp='кто|умеешь|ты|рассажи|себе')
+def whoami(msg):
+    logging(msg)
+    bot.send_message(msg.chat.id, text="Наверно, ты хочешь узнать про меня. Так вот...")
+    bot.send_message(msg.chat.id, text=config.helloMessage)
+    bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
+    bot.send_message(msg.chat.id, text=config.description)
+
+
 @bot.message_handler(regexp='ботать')
 def showTypesOfBotka(msg):
+    logging(msg)
     bot.send_message(msg.chat.id, text='Выберите тип экзамена.', reply_markup=typeOfBotka)
+
 
 @bot.message_handler(regexp='📕')
 def documentation(msg):
@@ -139,29 +150,29 @@ def documentation(msg):
 @bot.message_handler(regexp='ЕГЭ')
 def wantEgeProblem(msg):
     logging(msg=msg)
-    bot.send_message(msg.chat.id, text="Выберите часть?", reply_markup=menuEge)
+    bot.send_message(msg.chat.id, text="Как именно будем ботать?", reply_markup=menuEge)
 
 
-@bot.message_handler(regexp='Случайная задача')
+@bot.message_handler(regexp='случ')
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
     sendProblemToUser(msg, egeNumber=egeNumber)
 
 
-@bot.message_handler(regexp='II часть')
+@bot.message_handler(regexp='II часть|вторая')
 def partC(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text='Выберите номер задания.', reply_markup=secondPart)
 
 
-@bot.message_handler(regexp='В начало')
+@bot.message_handler(regexp='начало|назад')
 def beginning(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text='Возвращаемся', reply_markup=main)
 
 
-@bot.message_handler(regexp='Буду читать мемесы')
+@bot.message_handler(regexp='мем|анекдот|орать|шути|скучно')
 def mem(msg):
     try:
         mem = dbUtils.getMem()
