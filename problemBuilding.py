@@ -100,7 +100,7 @@ def getLarinVariantsKeyboard():
     partedVariants = list(chunks(variantsNumbers, 4))
 
     for foury in partedVariants:
-        variantsKeyboard.keyboard.append([dict(text='Вар. {}'.format(i)) for i in foury])
+        variantsKeyboard.keyboard.append([dict(text='Вар.{}'.format(i)) for i in foury])
 
     return variantsKeyboard
 

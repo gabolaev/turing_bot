@@ -73,8 +73,11 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
 
 
 def sendLarinVariant(msg, variantNumber):
-    with open(config.bankPath + config.larinPathPattern.replace('*', str(variantNumber)), 'rb') as larinFile:
-        bot.send_document(msg.chat.id, data=larinFile)
+    try:
+        with open(config.bankPath + config.larinPathPattern.replace('*', str(variantNumber)), 'rb') as larinFile:
+            bot.send_document(msg.chat.id, data=larinFile)
+    except(Exception):
+        bot.send_message(msg.chat.id, text="У меня возникли трудности с поиском этого варианта. А он точно есть?")
 
 
 def showDVIVariants(msg, year):
@@ -119,13 +122,13 @@ def handle_start_help(message):
                      text=config.aboutVkMessage, reply_markup=vkGroupsLinks)
 
 
-@bot.message_handler(regexp='ДВИ')
+@bot.message_handler(regexp=config.dvi)
 def wantDVIProblem(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
 
 
-@bot.message_handler(regexp='кто|умеешь|ты|рассажи|себе')
+@bot.message_handler(regexp=config.tellMe)
 def whoami(msg):
     logging(msg)
     bot.send_message(msg.chat.id, text="Наверно, ты хочешь узнать про меня. Так вот...")
@@ -133,46 +136,55 @@ def whoami(msg):
     bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
     bot.send_message(msg.chat.id, text=config.description)
 
+@bot.message_handler(regexp=config.hello)
+def sayHello(msg):
+    logging(msg)
+    bot.send_message(msg.chat.id, text='Вроде здоровались, но я всегда рад тебе) Привет!')
 
-@bot.message_handler(regexp='ботать')
+@bot.message_handler(regexp=config.working)
 def showTypesOfBotka(msg):
     logging(msg)
     bot.send_message(msg.chat.id, text='Выберите тип экзамена.', reply_markup=typeOfBotka)
 
 
-@bot.message_handler(regexp='📕')
+@bot.message_handler(regexp=config.documentation)
 def documentation(msg):
     logging(msg=msg)
     with open(config.docPath, 'rb') as doc:
         bot.send_document(msg.chat.id, data=doc, caption='Красивая инструкция.')
 
 
-@bot.message_handler(regexp='ЕГЭ')
+@bot.message_handler(regexp=config.ege)
 def wantEgeProblem(msg):
     logging(msg=msg)
-    bot.send_message(msg.chat.id, text="Как именно будем ботать?", reply_markup=menuEge)
+    bot.send_message(msg.chat.id, text="Как именно будем ботать ЕГЭ?", reply_markup=menuEge)
 
 
-@bot.message_handler(regexp='случ|любой')
+@bot.message_handler(regexp=config.random)
 def wantProblem(msg):
     logging(msg=msg)
     egeNumber = dbUtils.getRandomEgeNumber()
     sendProblemToUser(msg, egeNumber=egeNumber)
 
 
-@bot.message_handler(regexp='II часть|вторая')
+@bot.message_handler(regexp=config.part2)
 def partC(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text='Выберите номер задания.', reply_markup=secondPart)
 
 
-@bot.message_handler(regexp='начало|назад')
+@bot.message_handler(regexp=config.back)
 def beginning(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text='Возвращаемся', reply_markup=main)
 
+@bot.message_handler(regexp=config.recourse)
+def beginning(msg):
+    logging(msg=msg)
+    bot.send_message(msg.chat.id, text='Что?', reply_markup=main)
 
-@bot.message_handler(regexp='мем|анекдот|орать|шути|скучно')
+
+@bot.message_handler(regexp=config.mem)
 def mem(msg):
     try:
         mem = dbUtils.getMem()
@@ -182,19 +194,19 @@ def mem(msg):
         bot.send_message(msg.chat.id, text='Помедленнее, пожалуйста, {}. Я не выдерживаю.'.format(msg.chat.username))
 
 
-@bot.message_handler(regexp='Вариант')
+@bot.message_handler(regexp=config.variant)
 def randomVariant(msg):
     logging(msg=msg)
     for i in range(13, 20):
         sendProblemToUser(msg, egeNumber=i)
 
 
-@bot.message_handler(regexp='Вар.')
+@bot.message_handler(regexp=config.var)
 def parseLarinVariant(msg):
-    sendLarinVariant(msg, msg.text[5::])
+    sendLarinVariant(msg, msg.text[4::])
 
 
-@bot.message_handler(regexp='Ларин')
+@bot.message_handler(regexp=config.larin)
 def larin(msg):
     logging(msg=msg)
     keyboard = problemBuilding.getLarinVariantsKeyboard()
@@ -242,6 +254,7 @@ def parseText(msg):
             sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
         except Exception as ex:
             whatTheFuckMan(msg)
+
             logging(text=ex)
 
 
