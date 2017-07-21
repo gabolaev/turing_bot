@@ -5,14 +5,9 @@ listOfUsers = dbUtils.getListOfUsers()
 
 
 def sendToAll(text):
-    bot.bot.send_message(43903450, text=text)
     for i in listOfUsers:
         try:
             bot.bot.send_message(i[2], text=text)
             bot.logging(text='РАССЫЛКА:'+text)
         except bot.telebot.apihelper.ApiException as ex:
             bot.logging(text=ex)
-
-
-while(1):
-    sendToAll(input())

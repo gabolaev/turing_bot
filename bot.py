@@ -1,6 +1,9 @@
 import datetime
 
 import telebot
+import random
+sys_random = random.SystemRandom()
+
 from telebot import *
 
 import config
@@ -52,7 +55,7 @@ def logging(msg=None, text=None):
 
 
 def whatTheFuckMan(msg):
-    bot.send_message(msg.chat.id, text=config.whatTheFuckMessage)
+    bot.send_message(msg.chat.id, text=sys_random.choice(config.whatTheFuckMessage))
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
@@ -95,7 +98,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.1 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.2 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=config.helloMessage)
 
     mainlinks = types.InlineKeyboardMarkup(row_width=3)
@@ -127,6 +130,11 @@ def wantDVIProblem(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
 
+@bot.message_handler(regexp=config.thanks)
+def parseLarinVariant(msg):
+    logging(msg=msg)
+    bot.send_message(msg.chat.id, text='Если я не ошибся, ты хвалишь меня) Спасибо, {}! С тобой очень приятно работать.'.format(msg.chat.username))
+
 
 @bot.message_handler(regexp=config.tellMe)
 def whoami(msg):
@@ -144,7 +152,7 @@ def sayHello(msg):
 @bot.message_handler(regexp=config.working)
 def showTypesOfBotka(msg):
     logging(msg)
-    bot.send_message(msg.chat.id, text='Выберите тип экзамена.', reply_markup=typeOfBotka)
+    bot.send_message(msg.chat.id, text='Выбери тип экзамена.', reply_markup=typeOfBotka)
 
 
 @bot.message_handler(regexp=config.documentation)
@@ -170,7 +178,7 @@ def wantProblem(msg):
 @bot.message_handler(regexp=config.part2)
 def partC(msg):
     logging(msg=msg)
-    bot.send_message(msg.chat.id, text='Выберите номер задания.', reply_markup=secondPart)
+    bot.send_message(msg.chat.id, text='Выбери номер задания.', reply_markup=secondPart)
 
 
 @bot.message_handler(regexp=config.back)
@@ -210,12 +218,12 @@ def parseLarinVariant(msg):
 def larin(msg):
     logging(msg=msg)
     keyboard = problemBuilding.getLarinVariantsKeyboard()
-    bot.send_message(msg.chat.id, text='Выберите вариант.', reply_markup=keyboard)
+    bot.send_message(msg.chat.id, text='Выбери вариант.', reply_markup=keyboard)
 
 
 @bot.message_handler(regexp='get')
 def getParse(msg):
-    logging(msg)
+    logging(msg=msg)
     try:
         sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
     except:
