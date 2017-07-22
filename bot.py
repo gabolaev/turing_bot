@@ -59,20 +59,23 @@ def whatTheFuckMan(msg):
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
-    if egeNumber:
-        problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
-            dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
-        dbUtils.addUserProblemHistory(msg.chat.id, problemID)
-    elif problemID:
-        _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, problemID=problemID))
-    else:
-        path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
-
-    photo = open(path, 'rb')
     try:
+        if egeNumber:
+            problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
+            dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+        elif problemID:
+            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, problemID=problemID))
+        else:
+            path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
+
+        photo = open(path, 'rb')
         bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
-    finally:
         photo.close()
+
+    except(Exception):
+        pass
+
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -98,7 +101,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.2 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.3 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=config.helloMessage)
 
     mainlinks = types.InlineKeyboardMarkup(row_width=3)
@@ -129,6 +132,13 @@ def handle_start_help(message):
 def wantDVIProblem(msg):
     logging(msg=msg)
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
+
+@bot.message_handler(regexp=config.issue)
+def issue(msg):
+    logging(msg=msg)
+    dbUtils.addIssue(msg.chat.id, msg.text)
+    bot.send_message(msg.chat.id, text="Спасибо, скоро исправим.")
+    bot.send_message(config.adminsGroup, text=config.aboutIssue.format(msg.chat.id, msg.chat.username, msg.text))
 
 @bot.message_handler(regexp=config.thanks)
 def parseLarinVariant(msg):
@@ -207,7 +217,6 @@ def randomVariant(msg):
     logging(msg=msg)
     for i in range(13, 20):
         sendProblemToUser(msg, egeNumber=i)
-
 
 @bot.message_handler(regexp=config.var)
 def parseLarinVariant(msg):

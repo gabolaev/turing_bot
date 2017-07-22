@@ -32,6 +32,8 @@ def addUserProblemHistory(telegramID, problemID):
 def getMem():
     return execStoreProcedure('GET_MEM')
 
+def addIssue(telegramID, issue):
+    execStoreProcedure('ADD_ISSUE', telegramID, issue)
 
 def addUser(message):
     execStoreProcedure('ADD_NEW_USER', message.chat.id, message.chat.username)
