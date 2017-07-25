@@ -1,16 +1,15 @@
-import datetime
+import random
 
 import telebot
-import random
+
 sys_random = random.SystemRandom()
 
 from telebot import *
-
-import config
+from config import *
 import dbUtils
 import problemBuilding
 
-bot = telebot.TeleBot(config.token)
+bot = telebot.TeleBot(token)
 
 # Главная клавиатура
 main = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -21,41 +20,32 @@ main.row("📕Как оно работает?📕")
 # ЕГЭ Меню клавиатура
 menuEge = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 menuEge.row('Вариант', 'II часть', 'Ларин')
-menuEge.row(config.toBegin)
+menuEge.row(toBegin)
 
 # Буду ботать клавиатура
 typeOfBotka = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
 typeOfBotka.row('ДВИ', 'ЕГЭ')
-typeOfBotka.row(config.toBegin)
+typeOfBotka.row(toBegin)
 
 # II часть клавиатура
 secondPart = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 secondPart.row('13', '14', '15', '16', '17', '18', '19')
-secondPart.row(config.toBegin)
+secondPart.row(toBegin)
 
 # ДВИ годы клавиатура
 dviYears = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 dviYears.row('2017', '2016', '2015', '2014')
 dviYears.row('2013', '2012', '2011', '2010')
 dviYears.row('2009', '2008', '2007', '2006')
-dviYears.row(config.toBegin)
+dviYears.row(toBegin)
 
 
-def logging(msg=None, text=None):
-    if (msg):
-        logFormat = [msg.chat.id, msg.chat.username, msg.text] if (type(msg) is telebot.types.Message) else [
-            msg.message.chat.id, msg.message.chat.username, msg.data]
-        logLine = datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ") + "{} ({}): {}".format(*logFormat)
-    else:
-        logLine = text
-    with open(config.logFilePath, 'a+') as log:
-        log.write("{}\n".format(logLine))
-        log.close()
-    print(logLine)
+def logFromMsg(msg):
+    log.info('{} ({}): {}'.format(msg.chat.id, msg.chat.username, msg.text))
 
 
 def whatTheFuckMan(msg):
-    bot.send_message(msg.chat.id, text=sys_random.choice(config.whatTheFuckMessage))
+    bot.send_message(msg.chat.id, text=sys_random.choice(whatTheFuckMessage))
 
 
 def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
@@ -65,7 +55,8 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
                 dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
             dbUtils.addUserProblemHistory(msg.chat.id, problemID)
         elif problemID:
-            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(dbUtils.getEgeProblem(msg, problemID=problemID))
+            _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
+                dbUtils.getEgeProblem(msg, problemID=problemID))
         else:
             path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
 
@@ -77,10 +68,9 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
         pass
 
 
-
 def sendLarinVariant(msg, variantNumber):
     try:
-        with open(config.bankPath + config.larinPathPattern.replace('*', str(variantNumber)), 'rb') as larinFile:
+        with open(bankPath + larinPathPattern.replace('*', str(variantNumber)), 'rb') as larinFile:
             bot.send_document(msg.chat.id, data=larinFile)
     except(Exception):
         bot.send_message(msg.chat.id, text="У меня возникли трудности с поиском этого варианта. А он точно есть?")
@@ -89,20 +79,20 @@ def sendLarinVariant(msg, variantNumber):
 def showDVIVariants(msg, year):
     variants = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True)
     variants.keyboard = [[dict(text=str(i) + ' ({})'.format(year)) for i in range(1, 5)]]
-    variants.row(config.toBegin)
+    variants.row(toBegin)
 
     bot.send_message(msg.chat.id, text="Выберите вариант.", reply_markup=variants)
 
 
 @bot.message_handler(commands=['start'])
 def handle_start_help(message):
-    logging(msg=message)
+    logFromMsg(message)
     dbUtils.addUser(message)
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
     bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.3 (beta)</i>")
-    bot.send_message(message.chat.id, parse_mode="HTML", text=config.helloMessage)
+    bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
     mainlinks = types.InlineKeyboardMarkup(row_width=3)
     gitBookBtn = types.InlineKeyboardButton(text="GitBook",
@@ -125,116 +115,125 @@ def handle_start_help(message):
 
     vkGroupsLinks.add(egeBtn, olympBtn, csBtn)
     bot.send_message(message.chat.id,
-                     text=config.aboutVkMessage, reply_markup=vkGroupsLinks)
+                     text=aboutVkMessage, reply_markup=vkGroupsLinks)
 
 
-@bot.message_handler(regexp=config.dvi)
+@bot.message_handler(regexp=dvi)
 def wantDVIProblem(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text="Выберите год.", reply_markup=dviYears)
 
-@bot.message_handler(regexp=config.issue)
+
+@bot.message_handler(regexp=issue)
 def issue(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     dbUtils.addIssue(msg.chat.id, msg.text)
     bot.send_message(msg.chat.id, text="Спасибо, скоро исправим.")
-    bot.send_message(config.adminsGroup, text=config.aboutIssue.format(msg.chat.id, msg.chat.username, msg.text))
+    bot.send_message(adminsGroup, text=aboutIssue.format(msg.chat.id, msg.chat.username, msg.text))
 
-@bot.message_handler(regexp=config.thanks)
+
+@bot.message_handler(regexp=thanks)
 def parseLarinVariant(msg):
-    logging(msg=msg)
-    bot.send_message(msg.chat.id, text='Если я не ошибся, ты хвалишь меня) Спасибо, {}! С тобой очень приятно работать.'.format(msg.chat.username))
+    logFromMsg(msg)
+    bot.send_message(msg.chat.id,
+                     text='Если я не ошибся, ты хвалишь меня) Спасибо, {}! С тобой очень приятно работать.'.format(
+                         msg.chat.username))
 
 
-@bot.message_handler(regexp=config.tellMe)
+@bot.message_handler(regexp=tellMe)
 def whoami(msg):
-    logging(msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text="Наверно, ты хочешь узнать про меня. Так вот...")
-    bot.send_message(msg.chat.id, text=config.helloMessage)
+    bot.send_message(msg.chat.id, text=helloMessage)
     bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
-    bot.send_message(msg.chat.id, text=config.description)
+    bot.send_message(msg.chat.id, text=description)
 
-@bot.message_handler(regexp=config.hello)
+
+@bot.message_handler(regexp=hello)
 def sayHello(msg):
-    logging(msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Вроде здоровались, но я всегда рад тебе) Привет!')
 
-@bot.message_handler(regexp=config.working)
+
+@bot.message_handler(regexp=working)
 def showTypesOfBotka(msg):
-    logging(msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Выбери тип экзамена.', reply_markup=typeOfBotka)
 
 
-@bot.message_handler(regexp=config.documentation)
+@bot.message_handler(regexp=documentation)
 def documentation(msg):
-    logging(msg=msg)
-    with open(config.docPath, 'rb') as doc:
+    logFromMsg(msg)
+    with open(docPath, 'rb') as doc:
         bot.send_document(msg.chat.id, data=doc, caption='Красивая инструкция.')
 
 
-@bot.message_handler(regexp=config.ege)
+@bot.message_handler(regexp=ege)
 def wantEgeProblem(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text="Как именно будем ботать ЕГЭ?", reply_markup=menuEge)
 
 
-@bot.message_handler(regexp=config.random)
+@bot.message_handler(regexp=random)
 def wantProblem(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     egeNumber = dbUtils.getRandomEgeNumber()
     sendProblemToUser(msg, egeNumber=egeNumber)
 
 
-@bot.message_handler(regexp=config.part2)
+@bot.message_handler(regexp=part2)
 def partC(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Выбери номер задания.', reply_markup=secondPart)
 
 
-@bot.message_handler(regexp=config.back)
+@bot.message_handler(regexp=back)
 def beginning(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Возвращаемся', reply_markup=main)
 
-@bot.message_handler(regexp=config.recourse)
+
+@bot.message_handler(regexp=recourse)
 def beginning(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Что?', reply_markup=main)
 
 
-@bot.message_handler(regexp=config.mem)
+@bot.message_handler(regexp=mem)
 def mem(msg):
     try:
         mem = dbUtils.getMem()
         bot.send_message(msg.chat.id, text=mem)
-        logging(msg=msg)
+        logFromMsg(msg)
     except(telebot.apihelper.ApiException):
         bot.send_message(msg.chat.id, text='Помедленнее, пожалуйста, {}. Я не выдерживаю.'.format(msg.chat.username))
 
 
-@bot.message_handler(regexp=config.variant)
+@bot.message_handler(regexp=variant)
 def randomVariant(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     for i in range(13, 20):
         sendProblemToUser(msg, egeNumber=i)
 
-@bot.message_handler(regexp=config.var)
+
+@bot.message_handler(regexp=var)
 def parseLarinVariant(msg):
+    logFromMsg(msg)
     sendLarinVariant(msg, msg.text[4::])
 
 
-@bot.message_handler(regexp=config.larin)
+@bot.message_handler(regexp=larin)
 def larin(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     keyboard = problemBuilding.getLarinVariantsKeyboard()
     bot.send_message(msg.chat.id, text='Выбери вариант.', reply_markup=keyboard)
 
 
 @bot.message_handler(regexp='get')
 def getParse(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     try:
-        sendProblemToUser(msg=msg, problemID=int(msg.text[4::]))
+        sendProblemToUser(msg, problemID=int(msg.text[4::]))
     except:
         whatTheFuckMan(msg)
 
@@ -246,7 +245,7 @@ def getAlias(msg):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_message(call):
-    logging(call)
+    logger.info(call)
     with open(call.data, "rb") as file:
         if call.data[17] == 'E':
             bot.send_photo(call.message.chat.id, photo=file)
@@ -256,26 +255,27 @@ def callback_message(call):
 
 @bot.message_handler(content_types=["text"])
 def parseText(msg):
-    logging(msg=msg)
+    logFromMsg(msg)
     try:
 
         intValue = int(msg.text)
-        if config.minEgeProblemNumber <= intValue <= config.maxEgeProblemNumber:  # Пришел номер ЕГЭ
-            sendProblemToUser(msg=msg, egeNumber=intValue)
-        elif config.minDVIYear <= intValue <= config.maxDVIYear:  # Пришел год ДВИ
+        if minEgeProblemNumber <= intValue <= maxEgeProblemNumber:  # Пришел номер ЕГЭ
+            sendProblemToUser(msg, egeNumber=intValue)
+        elif minDVIYear <= intValue <= maxDVIYear:  # Пришел год ДВИ
             showDVIVariants(msg, intValue)
         else:
             whatTheFuckMan(msg)
     except Exception:
         try:
-            sendProblemToUser(msg=msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
-        except Exception as ex:
+            sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+        except Exception:
             whatTheFuckMan(msg)
-
-            logging(text=ex)
 
 
 if __name__ == '__main__':
-    logging(text="Enabling the bot in {}".format(datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ")))
-    bot.polling(none_stop=True)
-    logging(text="\nDisabling the bot in {}".format(datetime.datetime.utcnow().strftime("%H:%M:%S // %d.%m.%Y // ")))
+    try:
+        log.debug(botEnabling)
+        bot.polling(none_stop=True)
+        log.debug(botDisabling)
+    except(Exception) as ex:
+        log.error(ex)

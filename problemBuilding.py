@@ -1,15 +1,13 @@
 import glob
-
 from sympy import *
 from telebot import types
-
 import bot
-import config
+from config import *
 
 toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 
 
-### ЕГЭ
+### ЕГЭ {
 
 
 def latex2image(recordOfProblem):
@@ -20,18 +18,18 @@ def latex2image(recordOfProblem):
                 preview(r'{}'.format(recordOfProblem[toCreate[i]]),
                         viewer='file',
                         output='png',
-                        preamble=config.myPreamble,
-                        filename=config.bankPath + config.egeTaskPathPattern.format(*pathFormat),
-                        dvioptions=config.dviOptions
+                        preamble=myPreamble,
+                        filename=bankPath + egeTaskPathPattern.format(*pathFormat),
+                        dvioptions=dviOptions
                         )
     except Exception:
-        bot.logging(text=config.latex2pngError)
+        bot.logging(text=latex2pngError)
 
 
 def checkImageExist(recordOfProblem):
     try:
         pathFormat = [(2 if recordOfProblem[7] >= 13 else 1), recordOfProblem[7], 'problem', recordOfProblem[1], 'problem']
-        open(config.bankPath + config.egeTaskPathPattern.format(*pathFormat, 'r')).close()
+        open(bankPath + egeTaskPathPattern.format(*pathFormat, 'r')).close()
     except IOError:
         latex2image(recordOfProblem)
 
@@ -40,7 +38,7 @@ def getEgeProblem(recordOfProblem):
 
     checkImageExist(recordOfProblem[0])
 
-    path = config.bankPath + config.egeTaskPathPattern.format((2 if recordOfProblem[0][7] >= 13 else 1),
+    path = bankPath + egeTaskPathPattern.format((2 if recordOfProblem[0][7] >= 13 else 1),
                                                               recordOfProblem[0][7], 'problem',
                                                               recordOfProblem[0][1], 'problem')
 
@@ -59,12 +57,12 @@ def getEgeProblem(recordOfProblem):
     return recordOfProblem[0][0], path, problemKeyboard, tags
 
 
-### ЕГЭ
+### ЕГЭ }
 
-### ДВИ
+### ДВИ {
 
 def getDviProblem(year, variant):
-    path = config.bankPath + config.dviProblemPathPattern.format(year, year, variant, 'problem')
+    path = bankPath + dviProblemPathPattern.format(year, year, variant, 'problem')
     problemKeyboard = types.InlineKeyboardMarkup(row_width=1)
     try:
         solutionPath = path.replace('problem.png', 'solution.pdf')
@@ -77,9 +75,9 @@ def getDviProblem(year, variant):
     return path, problemKeyboard, tags
 
 
-### ДВИ
+### ДВИ }
 
-### Ларин
+### Ларин {
 
 def getFileWithoutExtension(path):
     from os.path import basename, splitext
@@ -95,7 +93,7 @@ def getLarinVariantsKeyboard():
     variantsKeyboard = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True).row('🔙В начало')
 
     variantsNumbers = sorted(
-        [int(getFileWithoutExtension(a)) for a in glob.glob(config.bankPath + config.larinPathPattern)], reverse=True)
+        [int(getFileWithoutExtension(a)) for a in glob.glob(bankPath + larinPathPattern)], reverse=True)
 
     partedVariants = list(chunks(variantsNumbers, 4))
 
@@ -104,4 +102,4 @@ def getLarinVariantsKeyboard():
 
     return variantsKeyboard
 
-    ###Ларин
+###Ларин }

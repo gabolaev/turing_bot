@@ -1,11 +1,10 @@
 import MySQLdb
 
-import config
-import bot
+from config import *
 
 
 def execStoreProcedure(procedureName, *args):
-    db = MySQLdb.connect(**config.dbConnection)
+    db = MySQLdb.connect(**dbConnection)
 
     cursor = db.cursor()
     cursor.callproc(procedureName, args)
