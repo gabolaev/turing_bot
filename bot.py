@@ -13,7 +13,7 @@ bot = telebot.TeleBot(token)
 
 # Главная клавиатура
 main = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-main.row("🎲Случайная задача🎲", "🎓Буду ботать🎓")
+main.row("🎲Случайная🎲", "🎓Буду ботать🎓")
 main.row("🎭Буду читать мемесы🎭")
 main.row("📕Как оно работает?📕")
 
@@ -63,6 +63,7 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
         photo = open(path, 'rb')
         bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
         photo.close()
+        log.info('FROM: ' + path)
 
     except(Exception):
         pass
@@ -80,7 +81,6 @@ def showDVIVariants(msg, year):
     variants = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True)
     variants.keyboard = [[dict(text=str(i) + ' ({})'.format(year)) for i in range(1, 5)]]
     variants.row(toBegin)
-
     bot.send_message(msg.chat.id, text="Выберите вариант.", reply_markup=variants)
 
 
