@@ -268,14 +268,15 @@ def parseText(msg):
     except Exception:
         try:
             sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
-        except Exception:
+        except Exception as ex:
             whatTheFuckMan(msg)
+            log.error(ex)
 
 
 if __name__ == '__main__':
     try:
-        log.debug(botEnabling)
+        log.info(botEnabling)
         bot.polling(none_stop=True)
-        log.debug(botDisabling)
+        log.info(botDisabling)
     except(Exception) as ex:
         log.error(ex)
