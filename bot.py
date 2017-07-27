@@ -41,7 +41,10 @@ dviYears.row(toBegin)
 
 
 def logFromMsg(msg):
-    log.info('{} ({}): {}'.format(msg.chat.id, msg.chat.username, msg.text))
+    form = '{} ({}): {}'
+    if msg.chat.id < 0:
+        form = 'Из чата {} // '.format(msg.chat.id) + form
+    log.info(form.format(msg.from_user.id, msg.from_user.username, msg.text))
 
 
 def whatTheFuckMan(msg):
@@ -252,6 +255,11 @@ def callback_message(call):
         else:
             bot.send_document(call.message.chat.id, data=file)
 
+@bot.message_handler(regexp='даня')
+def noRacism(msg):
+    logFromMsg(msg)
+    with open(no_racism, 'rb') as racism:
+        bot.send_photo(msg.chat.id, photo=racism, caption='Be tolerant.')
 
 @bot.message_handler(content_types=["text"])
 def parseText(msg):
