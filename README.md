@@ -1,4 +1,6 @@
 # <a></a> <img src="https://github.com/gabolaev/Turing_bot/blob/master/resources/botLogo.png" width="26"> Turing Bot
+[![GitHub license](https://img.shields.io/github/license/carloscuesta/materialshell.svg?style=flat-square)](https://github.com/carloscuesta/materialshell)
+
 <a href=https://t.me/nlognbot> START BOT</a> or
 <a href=https://github.com/gabolaev/Turing_bot/raw/master/resources/documentation.pdf> Download instruction </a>
 
@@ -14,6 +16,5 @@ TODO:
 About:
 This is the Telegram bot for NLog(N) project, specializing in working with students of our project, by giving them terms, solutions and answers to the USE assignments in profile mathematics
 
-Also this bot can get you some math memes :)
-<img src="https://github.com/gabolaev/Turing_bot/blob/master/resources/fullLogo.png">
+P.S. Also this bot can get you some math memes :)
 
