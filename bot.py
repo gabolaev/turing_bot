@@ -3,42 +3,11 @@ import random
 import telebot
 
 sys_random = random.SystemRandom()
-
-from telebot import *
 from config import *
 import dbUtils
 import problemBuilding
 
 bot = telebot.TeleBot(token)
-
-# Главная клавиатура
-main = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-main.row("🎲Случайная🎲", "🎓Буду ботать🎓")
-main.row("🎭Буду читать мемесы🎭")
-main.row("📕Как оно работает?📕")
-
-# ЕГЭ Меню клавиатура
-menuEge = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-menuEge.row('Вариант', 'II часть', 'Ларин')
-menuEge.row(toBegin)
-
-# Буду ботать клавиатура
-typeOfBotka = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-typeOfBotka.row('ДВИ', 'ЕГЭ')
-typeOfBotka.row(toBegin)
-
-# II часть клавиатура
-secondPart = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-secondPart.row('13', '14', '15', '16', '17', '18', '19')
-secondPart.row(toBegin)
-
-# ДВИ годы клавиатура
-dviYears = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-dviYears.row('2017', '2016', '2015', '2014')
-dviYears.row('2013', '2012', '2011', '2010')
-dviYears.row('2009', '2008', '2007', '2006')
-dviYears.row(toBegin)
-
 
 def logFromMsg(msg):
     form = '{} ({}): {}'
@@ -87,6 +56,14 @@ def showDVIVariants(msg, year):
     bot.send_message(msg.chat.id, text="Выберите вариант.", reply_markup=variants)
 
 
+def sendRealToUser(msg, year):
+    try:
+        with open(bankPath + realTaskPattern.format(year), 'rb') as doc:
+            bot.send_document(msg.chat.id, data=doc)
+    except(Exception):
+        whatTheFuckMan(msg)
+
+
 @bot.message_handler(commands=['start'])
 def handle_start_help(message):
     logFromMsg(message)
@@ -97,26 +74,11 @@ def handle_start_help(message):
     bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.3 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
-    mainlinks = types.InlineKeyboardMarkup(row_width=3)
-    gitBookBtn = types.InlineKeyboardButton(text="GitBook",
-                                            url="https://timyrik20.gitbooks.io/nlogn/")
-    siteBtn = types.InlineKeyboardButton(text="Telegram-чат",
-                                         url="https://t.me/joinchat/EvGqu0MpwttTiIWBl-rx7w")
-    telegramChannelBtn = types.InlineKeyboardButton(text="Telegram-канал",
-                                                    url="https://t.me/nlognege")
-
-    mainlinks.add(gitBookBtn, siteBtn, telegramChannelBtn)
     bot.send_message(message.chat.id,
                      text="Timur Guev @timyrik20\n"
                           "George Gabolaev @gabolaev\n"
                           "Nelli Khlustova @nelli_snow", reply_markup=mainlinks)
 
-    vkGroupsLinks = types.InlineKeyboardMarkup()
-    egeBtn = types.InlineKeyboardButton(text="📓 ЕГЭ математика.", url="https://vk.com/nlognege")
-    olympBtn = types.InlineKeyboardButton(text="🏆 Олимп. подготовка", url="https://vk.com/nlognolymp")
-    csBtn = types.InlineKeyboardButton(text="💻 Комп. науки", url="https://vk.com/nlogncs")
-
-    vkGroupsLinks.add(egeBtn, olympBtn, csBtn)
     bot.send_message(message.chat.id,
                      text=aboutVkMessage, reply_markup=vkGroupsLinks)
 
@@ -134,6 +96,19 @@ def issue(msg):
     bot.send_message(msg.chat.id, text="Спасибо, скоро исправим.")
     bot.send_message(adminsGroup, text=aboutIssue.format(msg.chat.id, msg.chat.username, msg.text))
 
+@bot.message_handler(regexp=books)
+def getBook(msg):
+    logFromMsg(msg)
+    try:
+        with open(bankPath+booksPath.format(msg.text), 'rb') as book:
+            bot.send_document(msg.chat.id, data=book)
+    except(Exception):
+        whatTheFuckMan(msg)
+
+@bot.message_handler(regexp=bookAlias)
+def getBooksKeyboard(msg):
+    logFromMsg(msg)
+    bot.send_message(msg.chat.id, text='Какую книжку хочешь?', reply_markup=booksKb)
 
 @bot.message_handler(regexp=thanks)
 def parseLarinVariant(msg):
@@ -142,15 +117,10 @@ def parseLarinVariant(msg):
                      text='Если я не ошибся, ты хвалишь меня) Спасибо, {}! С тобой очень приятно работать.'.format(
                          msg.chat.username))
 
-
-@bot.message_handler(regexp=tellMe)
-def whoami(msg):
+@bot.message_handler(regexp=real)
+def realVariants(msg):
     logFromMsg(msg)
-    bot.send_message(msg.chat.id, text="Наверно, ты хочешь узнать про меня. Так вот...")
-    bot.send_message(msg.chat.id, text=helloMessage)
-    bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
-    bot.send_message(msg.chat.id, text=description)
-
+    bot.send_message(msg.chat.id, text='Выбери год ЕГЭ.', reply_markup=reals)
 
 @bot.message_handler(regexp=hello)
 def sayHello(msg):
@@ -212,6 +182,14 @@ def mem(msg):
         bot.send_message(msg.chat.id, text='Помедленнее, пожалуйста, {}. Я не выдерживаю.'.format(msg.chat.username))
 
 
+@bot.message_handler(regexp=tellMe)
+def whoami(msg):
+    logFromMsg(msg)
+    bot.send_message(msg.chat.id, text="Наверно, ты хочешь узнать про меня. Так вот...")
+    bot.send_message(msg.chat.id, text=helloMessage)
+    bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
+    bot.send_message(msg.chat.id, text=description)
+
 @bot.message_handler(regexp=variant)
 def randomVariant(msg):
     logFromMsg(msg)
@@ -255,11 +233,13 @@ def callback_message(call):
         else:
             bot.send_document(call.message.chat.id, data=file)
 
+
 @bot.message_handler(regexp='даня')
 def noRacism(msg):
     logFromMsg(msg)
     with open(no_racism, 'rb') as racism:
         bot.send_photo(msg.chat.id, photo=racism, caption='Be tolerant.')
+
 
 @bot.message_handler(content_types=["text"])
 def parseText(msg):
@@ -275,7 +255,10 @@ def parseText(msg):
             whatTheFuckMan(msg)
     except Exception:
         try:
-            sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+            if (msg.text[5:8] == 'год'):
+                sendRealToUser(msg, year=msg.text[0:4]) # Пришёл год реального варианта
+            else:
+                sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
         except Exception as ex:
             whatTheFuckMan(msg)
             log.error(ex)
