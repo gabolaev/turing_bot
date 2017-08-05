@@ -9,11 +9,12 @@ import problemBuilding
 
 bot = telebot.TeleBot(token)
 
+
 def logFromMsg(msg):
-    form = '{} ({}): {}'
+    form = '{} ({}) [{} {}] : {}'
     if msg.chat.id < 0:
         form = 'Из чата {} // '.format(msg.chat.id) + form
-    log.info(form.format(msg.from_user.id, msg.from_user.username, msg.text))
+    log.info(form.format(msg.from_user.id, msg.from_user.username, msg.from_user.first_name, msg.from_user.last_name, msg.text))
 
 
 def whatTheFuckMan(msg):
@@ -71,7 +72,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.3 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.4 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
     bot.send_message(message.chat.id,
@@ -96,19 +97,22 @@ def issue(msg):
     bot.send_message(msg.chat.id, text="Спасибо, скоро исправим.")
     bot.send_message(adminsGroup, text=aboutIssue.format(msg.chat.id, msg.chat.username, msg.text))
 
+
 @bot.message_handler(regexp=books)
 def getBook(msg):
     logFromMsg(msg)
     try:
-        with open(bankPath+booksPath.format(msg.text), 'rb') as book:
+        with open(bankPath + booksPath.format(msg.text), 'rb') as book:
             bot.send_document(msg.chat.id, data=book)
     except(Exception):
         whatTheFuckMan(msg)
+
 
 @bot.message_handler(regexp=bookAlias)
 def getBooksKeyboard(msg):
     logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Какую книжку хочешь?', reply_markup=booksKb)
+
 
 @bot.message_handler(regexp=thanks)
 def parseLarinVariant(msg):
@@ -117,10 +121,12 @@ def parseLarinVariant(msg):
                      text='Если я не ошибся, ты хвалишь меня) Спасибо, {}! С тобой очень приятно работать.'.format(
                          msg.chat.username))
 
+
 @bot.message_handler(regexp=real)
 def realVariants(msg):
     logFromMsg(msg)
     bot.send_message(msg.chat.id, text='Выбери год ЕГЭ.', reply_markup=reals)
+
 
 @bot.message_handler(regexp=hello)
 def sayHello(msg):
@@ -138,7 +144,7 @@ def showTypesOfBotka(msg):
 def documentation(msg):
     logFromMsg(msg)
     with open(docPath, 'rb') as doc:
-        bot.send_document(msg.chat.id, data=doc, caption='Красивая инструкция.')
+        bot.send_document(msg.chat.id, data=doc, caption='Документация моих возможностей.')
 
 
 @bot.message_handler(regexp=ege)
@@ -190,6 +196,7 @@ def whoami(msg):
     bot.send_message(msg.chat.id, text="А ещё в моей документации написано вот это.")
     bot.send_message(msg.chat.id, text=description)
 
+
 @bot.message_handler(regexp=variant)
 def randomVariant(msg):
     logFromMsg(msg)
@@ -201,6 +208,11 @@ def randomVariant(msg):
 def parseLarinVariant(msg):
     logFromMsg(msg)
     sendLarinVariant(msg, msg.text[4::])
+
+@bot.message_handler(regexp="О нас")
+def about(msg):
+    logFromMsg(msg)
+    bot.send_message(msg.chat.id, text="Скоро.")
 
 
 @bot.message_handler(regexp=larin)
@@ -256,7 +268,7 @@ def parseText(msg):
     except Exception:
         try:
             if (msg.text[5:8] == 'год'):
-                sendRealToUser(msg, year=msg.text[0:4]) # Пришёл год реального варианта
+                sendRealToUser(msg, year=msg.text[0:4])  # Пришёл год реального варианта
             else:
                 sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
         except Exception as ex:
@@ -269,5 +281,5 @@ if __name__ == '__main__':
         log.info(botEnabling)
         bot.polling(none_stop=True)
         log.info(botDisabling)
-    except(Exception) as ex:
+    except Exception as ex:
         log.error(ex)
