@@ -21,7 +21,7 @@ def whatTheFuckMan(msg):
     bot.send_message(msg.chat.id, text=sys_random.choice(whatTheFuckMessage))
 
 
-def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=None):
+def sendProblemToUser(msg, egeNumber=None, year=None, problemID=None):
     try:
         if egeNumber:
             problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
@@ -31,7 +31,7 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
             _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
                 dbUtils.getEgeProblem(msg, problemID=problemID))
         else:
-            path, problemKeyboard, tags = problemBuilding.getDviProblem(year, variant)
+            path, problemKeyboard, tags = problemBuilding.getDviProblem(year)
 
         photo = open(path, 'rb')
         bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
@@ -39,7 +39,7 @@ def sendProblemToUser(msg, egeNumber=None, year=None, variant=None, problemID=No
         log.info('FROM: ' + path)
 
     except(Exception):
-        pass
+        whatTheFuckMan(msg)
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -48,13 +48,6 @@ def sendLarinVariant(msg, variantNumber):
             bot.send_document(msg.chat.id, data=larinFile)
     except(Exception):
         bot.send_message(msg.chat.id, text="У меня возникли трудности с поиском этого варианта. А он точно есть?")
-
-
-def showDVIVariants(msg, year):
-    variants = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True)
-    variants.keyboard = [[dict(text=str(i) + ' ({})'.format(year)) for i in range(1, 5)]]
-    variants.row(toBegin)
-    bot.send_message(msg.chat.id, text="Выберите вариант.", reply_markup=variants)
 
 
 def sendRealToUser(msg, year):
@@ -257,20 +250,16 @@ def noRacism(msg):
 def parseText(msg):
     logFromMsg(msg)
     try:
-
         intValue = int(msg.text)
         if minEgeProblemNumber <= intValue <= maxEgeProblemNumber:  # Пришел номер ЕГЭ
             sendProblemToUser(msg, egeNumber=intValue)
         elif minDVIYear <= intValue <= maxDVIYear:  # Пришел год ДВИ
-            showDVIVariants(msg, intValue)
+            sendProblemToUser(msg, year=intValue)
         else:
             whatTheFuckMan(msg)
     except Exception:
         try:
-            if (msg.text[5:8] == 'год'):
-                sendRealToUser(msg, year=msg.text[0:4])  # Пришёл год реального варианта
-            else:
-                sendProblemToUser(msg, year=int(msg.text[3:7]), variant=int(msg.text[0]))  # ГОД ДВИ
+            sendRealToUser(msg, year=msg.text[0:4])  # Пришёл год реального варианта
         except Exception as ex:
             whatTheFuckMan(msg)
             log.error(ex)

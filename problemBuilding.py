@@ -4,13 +4,13 @@ from telebot import types
 import bot
 from config import *
 
-toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
 
 
 ### ЕГЭ {
 
 
 def latex2image(recordOfProblem):
+    toCreate = {'problem': 3, 'solution': 4, 'answer': 5}
     try:
         for i in toCreate:
             if recordOfProblem[toCreate[i]]:
@@ -61,15 +61,13 @@ def getEgeProblem(recordOfProblem):
 
 ### ДВИ {
 
-def getDviProblem(year, variant):
-    path = bankPath + dviProblemPathPattern.format(year, year, variant, 'problem')
+def getDviProblem(year):
+    path = bankPath + dviProblemPathPattern.format(year, year, 'problem')
     problemKeyboard = types.InlineKeyboardMarkup(row_width=1)
-    try:
-        solutionPath = path.replace('problem.png', 'solution.pdf')
-        open(solutionPath).close()
-        problemKeyboard.add(types.InlineKeyboardButton(text='Решение', callback_data=solutionPath))
-    except Exception:
-        pass
+
+    solutionPath = path.replace('problem.png', 'solution.pdf')
+    open(solutionPath).close()
+    problemKeyboard.add(types.InlineKeyboardButton(text='Решение', callback_data=solutionPath))
 
     tags = '#ДВИ' + str(year)
     return path, problemKeyboard, tags
@@ -92,8 +90,7 @@ def chunks(listOfVariants, sizes):
 def getLarinVariantsKeyboard():
     variantsKeyboard = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True).row('🔙В начало')
 
-    variantsNumbers = sorted(
-        [int(getFileWithoutExtension(a)) for a in glob.glob(bankPath + larinPathPattern)], reverse=True)
+    variantsNumbers = sorted([int(getFileWithoutExtension(a)) for a in glob.glob(bankPath + larinPathPattern)], reverse=True)
 
     partedVariants = list(chunks(variantsNumbers, 4))
 
