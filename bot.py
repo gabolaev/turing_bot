@@ -20,22 +20,29 @@ def logFromMsg(msg):
 def whatTheFuckMan(msg):
     bot.send_message(msg.chat.id, text=sys_random.choice(whatTheFuckMessage))
 
+def sendFileToUser(msg, path, problemKeyboard, tags):
+    with open(path, 'rb') as file:
+        bot.send_document(msg.chat.id, data=file, reply_markup=problemKeyboard, caption=tags)
 
-def sendProblemToUser(msg, egeNumber=None, year=None, problemID=None):
+def sendPhotoToUser(msg, path, problemKeyboard, tags):
+    with open(path, 'rb') as file:
+        bot.send_photo(msg.chat.id, photo=file, reply_markup=problemKeyboard, caption=tags)
+
+def constructProblemBeforeSending(msg, egeNumber=None, year=None, problemID=None):
     try:
         if egeNumber:
             problemID, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
                 dbUtils.getEgeProblem(msg, egeNumber=egeNumber))
             dbUtils.addUserProblemHistory(msg.chat.id, problemID)
+            sendPhotoToUser(msg, path, problemKeyboard, tags)
         elif problemID:
             _, path, problemKeyboard, tags = problemBuilding.getEgeProblem(
                 dbUtils.getEgeProblem(msg, problemID=problemID))
+            sendPhotoToUser(msg, path, problemKeyboard, tags)
         else:
             path, problemKeyboard, tags = problemBuilding.getDviProblem(year)
+            sendFileToUser(msg, path, problemKeyboard, tags)
 
-        file = open(path, 'rb')
-        bot.send_document(msg.chat.id, data=file, reply_markup=problemKeyboard, caption=tags)
-        file.close()
         log.info('FROM: ' + path)
 
     except(Exception):
@@ -150,7 +157,7 @@ def wantEgeProblem(msg):
 def wantProblem(msg):
     logFromMsg(msg)
     egeNumber = dbUtils.getRandomEgeNumber()
-    sendProblemToUser(msg, egeNumber=egeNumber)
+    constructProblemBeforeSending(msg, egeNumber=egeNumber)
 
 
 @bot.message_handler(regexp=part2)
@@ -194,7 +201,7 @@ def whoami(msg):
 def randomVariant(msg):
     logFromMsg(msg)
     for i in range(13, 20):
-        sendProblemToUser(msg, egeNumber=i)
+        constructProblemBeforeSending(msg, egeNumber=i)
 
 
 @bot.message_handler(regexp=var)
@@ -219,7 +226,7 @@ def larin(msg):
 def getParse(msg):
     logFromMsg(msg)
     try:
-        sendProblemToUser(msg, problemID=int(msg.text[4::]))
+        constructProblemBeforeSending(msg, problemID=int(msg.text[4::]))
     except:
         whatTheFuckMan(msg)
 
@@ -252,9 +259,9 @@ def parseText(msg):
     try:
         intValue = int(msg.text)
         if minEgeProblemNumber <= intValue <= maxEgeProblemNumber:  # Пришел номер ЕГЭ
-            sendProblemToUser(msg, egeNumber=intValue)
+            constructProblemBeforeSending(msg, egeNumber=intValue)
         elif minDVIYear <= intValue <= maxDVIYear:  # Пришел год ДВИ
-            sendProblemToUser(msg, year=intValue)
+            constructProblemBeforeSending(msg, year=intValue)
         else:
             whatTheFuckMan(msg)
     except Exception:
