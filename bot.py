@@ -33,9 +33,9 @@ def sendProblemToUser(msg, egeNumber=None, year=None, problemID=None):
         else:
             path, problemKeyboard, tags = problemBuilding.getDviProblem(year)
 
-        photo = open(path, 'rb')
-        bot.send_photo(msg.chat.id, photo=photo, reply_markup=problemKeyboard, caption=tags)
-        photo.close()
+        file = open(path, 'rb')
+        bot.send_document(msg.chat.id, data=file, reply_markup=problemKeyboard, caption=tags)
+        file.close()
         log.info('FROM: ' + path)
 
     except(Exception):
@@ -65,7 +65,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.4 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.5 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
     bot.send_message(message.chat.id,

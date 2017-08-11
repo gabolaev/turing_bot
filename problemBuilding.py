@@ -65,7 +65,7 @@ def getDviProblem(year):
     path = bankPath + dviProblemPathPattern.format(year, year, 'problem')
     problemKeyboard = types.InlineKeyboardMarkup(row_width=1)
 
-    solutionPath = path.replace('problem.png', 'solution.pdf')
+    solutionPath = path.replace('problem.pdf', 'solution.pdf')
     open(solutionPath).close()
     problemKeyboard.add(types.InlineKeyboardButton(text='Решение', callback_data=solutionPath))
 
