@@ -14,19 +14,23 @@ def logFromMsg(msg):
     form = '{} ({}) [{} {}] : {}'
     if msg.chat.id < 0:
         form = 'Из чата {} // '.format(msg.chat.id) + form
-    log.info(form.format(msg.from_user.id, msg.from_user.username, msg.from_user.first_name, msg.from_user.last_name, msg.text))
+    log.info(form.format(msg.from_user.id, msg.from_user.username, msg.from_user.first_name, msg.from_user.last_name,
+                         msg.text))
 
 
 def whatTheFuckMan(msg):
     bot.send_message(msg.chat.id, text=sys_random.choice(whatTheFuckMessage))
 
+
 def sendFileToUser(msg, path, problemKeyboard, tags):
     with open(path, 'rb') as file:
         bot.send_document(msg.chat.id, data=file, reply_markup=problemKeyboard, caption=tags)
 
+
 def sendPhotoToUser(msg, path, problemKeyboard, tags):
     with open(path, 'rb') as file:
         bot.send_photo(msg.chat.id, photo=file, reply_markup=problemKeyboard, caption=tags)
+
 
 def constructProblemBeforeSending(msg, egeNumber=None, year=None, problemID=None):
     try:
@@ -45,8 +49,9 @@ def constructProblemBeforeSending(msg, egeNumber=None, year=None, problemID=None
 
         log.info('FROM: ' + path)
 
-    except(Exception):
+    except(Exception) as ex:
         whatTheFuckMan(msg)
+        log.error(ex)
 
 
 def sendLarinVariant(msg, variantNumber):
@@ -72,16 +77,13 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.5 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.6 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
     bot.send_message(message.chat.id,
                      text="Timur Guev @timyrik20\n"
                           "George Gabolaev @gabolaev\n"
                           "Nelli Khlustova @nelli_snow", reply_markup=mainlinks)
-
-    bot.send_message(message.chat.id,
-                     text=aboutVkMessage, reply_markup=vkGroupsLinks)
 
 
 @bot.message_handler(regexp=dvi)
@@ -209,10 +211,11 @@ def parseLarinVariant(msg):
     logFromMsg(msg)
     sendLarinVariant(msg, msg.text[4::])
 
+
 @bot.message_handler(regexp="О нас")
 def about(msg):
     logFromMsg(msg)
-    bot.send_message(msg.chat.id, text="Скоро.")
+    bot.send_message(msg.chat.id, text=aboutUs)
 
 
 @bot.message_handler(regexp=larin)
@@ -278,4 +281,6 @@ if __name__ == '__main__':
         bot.polling(none_stop=True)
         log.info(botDisabling)
     except Exception as ex:
+        bot.send_message(adminsGroup, text="Падаю")
+        bot.send_message(adminsGroup, text=ex)
         log.error(ex)
