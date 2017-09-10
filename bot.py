@@ -56,8 +56,9 @@ def constructProblemBeforeSending(msg, egeNumber=None, year=None, problemID=None
 
 def sendLarinVariant(msg, variantNumber):
     try:
-        with open(bankPath + larinPathPattern.replace('*', str(variantNumber)), 'rb') as larinFile:
-            bot.send_document(msg.chat.id, data=larinFile)
+        path, problemKeyboard = problemBuilding.getLarinVariant(variantNumber)
+        with open(path, 'rb') as file:
+            bot.send_document(msg.chat.id, data=file, reply_markup=problemKeyboard)
     except(Exception):
         bot.send_message(msg.chat.id, text="У меня возникли трудности с поиском этого варианта. А он точно есть?")
 
@@ -77,7 +78,7 @@ def handle_start_help(message):
     bot.send_message(message.chat.id,
                      parse_mode="HTML",
                      text="<b>NLog(N) Turing BOT</b>", reply_markup=main)
-    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.6 (beta)</i>")
+    bot.send_message(message.chat.id, parse_mode="HTML", text="<i>v1.3.7 (beta)</i>")
     bot.send_message(message.chat.id, parse_mode="HTML", text=helloMessage)
 
     bot.send_message(message.chat.id,

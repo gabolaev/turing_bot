@@ -86,11 +86,10 @@ def chunks(listOfVariants, sizes):
     for i in range(0, len(listOfVariants), sizes):
         yield listOfVariants[i:i + sizes]
 
-
 def getLarinVariantsKeyboard():
     variantsKeyboard = types.ReplyKeyboardMarkup(row_width=4, resize_keyboard=True).row('🔙В начало')
 
-    variantsNumbers = sorted([int(getFileWithoutExtension(a)) for a in glob.glob(bankPath + larinPathPattern)], reverse=True)
+    variantsNumbers = sorted([int(getFileWithoutExtension(a)) for a in glob.glob(bankPath + larinVariantsPathPattern)], reverse=True)
 
     partedVariants = list(chunks(variantsNumbers, 4))
 
@@ -98,5 +97,18 @@ def getLarinVariantsKeyboard():
         variantsKeyboard.keyboard.append([dict(text='Вар.{}'.format(i)) for i in foury])
 
     return variantsKeyboard
+
+def getLarinVariant(variantNumber):
+    path = bankPath + larinVariantsPathPattern.replace('*', str(variantNumber))
+
+    problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
+    try:
+        tryPath =  path.replace("variants", "solutions").replace(".pdf", "_разбор.pdf")
+        open(tryPath, 'r').close()
+        problemKeyboard.add(types.InlineKeyboardButton(text="Разбор", callback_data=tryPath))
+    except Exception:
+        pass
+
+    return path, problemKeyboard
 
 ###Ларин }
