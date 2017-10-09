@@ -243,11 +243,15 @@ def getAlias(msg):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_message(call):
     log.info(call.data)
-    with open(call.data, "rb") as file:
-        if call.data[17] == 'E':
-            bot.send_photo(call.message.chat.id, photo=file)
-        else:
-            bot.send_document(call.message.chat.id, data=file)
+    try:
+        with open(call.data, "rb") as file:
+            if call.data[17] == 'E':
+                bot.send_photo(call.message.chat.id, photo=file)
+            else:
+                bot.send_document(call.message.chat.id, data=file)
+    except Exception:
+        pass
+
 
 
 @bot.message_handler(regexp='даня')
