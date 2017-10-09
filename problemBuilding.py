@@ -103,7 +103,7 @@ def getLarinVariant(variantNumber):
 
     problemKeyboard = types.InlineKeyboardMarkup(row_width=2)
     try:
-        tryPath =  path.replace("variants", "solutions").replace(".pdf", "_разбор.pdf")
+        tryPath =  path.replace("variants", "solutions").replace(".pdf", "_sol.pdf")
         open(tryPath, 'r').close()
         problemKeyboard.add(types.InlineKeyboardButton(text="Разбор", callback_data=tryPath))
     except Exception:

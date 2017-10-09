@@ -11,7 +11,7 @@ bot = telebot.TeleBot(token)
 
 
 def logFromMsg(msg):
-    form = '{} ({}) [{} {}] : {}'
+    form = '{} (@{}) [{} {}] : {}'
     if msg.chat.id < 0:
         form = 'Из чата {} // '.format(msg.chat.id) + form
     log.info(form.format(msg.from_user.id, msg.from_user.username, msg.from_user.first_name, msg.from_user.last_name,

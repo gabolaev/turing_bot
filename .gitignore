@@ -3,3 +3,5 @@ config.py
 latex.py
 .DS_Store
 dispatch.py
+youwillbefired.py
+__pycache__
